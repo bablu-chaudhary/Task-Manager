@@ -126,6 +126,31 @@ router.delete('/:id/members/:userId', async (req, res, next) => {
   }
 });
 
+// PATCH /api/projects/:id — Admin updates project
+router.patch('/:id', async (req, res, next) => {
+  try {
+    const membership = await prisma.projectMember.findUnique({
+      where: { userId_projectId: { userId: req.userId, projectId: req.params.id } },
+    });
+    if (!membership || membership.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Only admins can update projects' });
+    }
+    const { name, description } = req.body;
+    if (!name) return res.status(400).json({ error: 'Project name is required' });
+    const project = await prisma.project.update({
+      where: { id: req.params.id },
+      data: { name, description },
+      include: {
+        members: { include: { user: { select: { id: true, name: true, email: true } } } },
+        _count: { select: { tasks: true } },
+      },
+    });
+    res.json({ ...project, myRole: 'ADMIN' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // DELETE /api/projects/:id — Admin deletes project
 router.delete('/:id', async (req, res, next) => {
   try {

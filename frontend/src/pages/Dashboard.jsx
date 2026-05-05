@@ -167,6 +167,36 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Overdue tasks list */}
+      {stats.overdueList && stats.overdueList.length > 0 && (
+        <div className="bg-white rounded-xl border border-red-200 shadow-sm p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-2 h-2 rounded-full bg-red-500" />
+            <h2 className="font-semibold text-gray-800">Overdue Tasks</h2>
+            <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">{stats.overdueList.length}</span>
+          </div>
+          <div className="space-y-2">
+            {stats.overdueList.map((task) => (
+              <Link key={task.id} to={`/projects/${task.project?.id}`}
+                className="flex items-center justify-between p-3 rounded-lg hover:bg-red-50 transition-colors group">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-800 truncate group-hover:text-red-700">{task.title}</p>
+                  <p className="text-xs text-gray-500">{task.project?.name}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0 ml-3">
+                  {task.assignee && (
+                    <span className="text-xs text-gray-500">{task.assignee.name}</span>
+                  )}
+                  <span className="text-xs text-red-600 font-medium">
+                    {format(new Date(task.dueDate), 'MMM d')}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Empty state */}
       {stats.total === 0 && (
         <div className="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center">

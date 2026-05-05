@@ -15,7 +15,7 @@ router.get('/', async (req, res, next) => {
 
     const now = new Date();
 
-    const [total, byStatus, byUser, overdue] = await Promise.all([
+    const [total, byStatus, byUser, overdue, overdueList] = await Promise.all([
       // Total tasks
       prisma.task.count({ where: { projectId: { in: projectIds } } }),
 
@@ -41,6 +41,21 @@ router.get('/', async (req, res, next) => {
           status: { not: 'DONE' },
         },
       }),
+
+      // Overdue tasks list
+      prisma.task.findMany({
+        where: {
+          projectId: { in: projectIds },
+          dueDate: { lt: now },
+          status: { not: 'DONE' },
+        },
+        include: {
+          project: { select: { id: true, name: true } },
+          assignee: { select: { id: true, name: true } },
+        },
+        orderBy: { dueDate: 'asc' },
+        take: 10,
+      }),
     ]);
 
     // Enrich assignee data
@@ -61,6 +76,7 @@ router.get('/', async (req, res, next) => {
       byStatus: byStatus.map((b) => ({ status: b.status, count: b._count.status })),
       tasksPerUser,
       overdue,
+      overdueList,
     });
   } catch (err) {
     next(err);

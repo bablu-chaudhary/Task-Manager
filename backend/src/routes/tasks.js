@@ -4,6 +4,24 @@ const { authenticate } = require('../middleware/auth');
 
 router.use(authenticate);
 
+// GET /api/tasks/my — all tasks assigned to current user
+router.get('/my', async (req, res, next) => {
+  try {
+    const tasks = await prisma.task.findMany({
+      where: { assigneeId: req.userId },
+      include: {
+        project: { select: { id: true, name: true } },
+        assignee: { select: { id: true, name: true, email: true } },
+        creator: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(tasks);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/tasks — create task (Admin only)
 router.post('/', async (req, res, next) => {
   try {
