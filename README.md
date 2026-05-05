@@ -8,21 +8,21 @@ A full-stack collaborative task management app with role-based access (Admin/Mem
 - **Backend**: Node.js + Express + Prisma ORM
 - **Database**: SQLite (file-based, zero setup)
 - **Auth**: JWT
-- **Deployment**: Railway
+- **Deployment**: Render (backend) + Vercel (frontend)
 
 ## Features
 
 - Signup / Login with JWT authentication
 - Create projects (creator becomes Admin)
 - Admin: add/remove members, create/edit/delete tasks
-- Member: view assigned tasks, update task status
-- Dashboard: total tasks, tasks by status, tasks per user, overdue count
+- Member: view and update assigned tasks
+- My Tasks page — all tasks assigned to you across projects
+- Dashboard: total tasks, by status, per user, overdue list
 
 ## Local Setup
 
 ### Prerequisites
 - Node.js 18+
-- PostgreSQL database
 
 ### Backend
 
@@ -39,42 +39,52 @@ npm run dev
 ```bash
 cd frontend
 npm install
-# For local dev, the Vite proxy handles /api → localhost:5000
 npm run dev
 ```
 
-## Deployment on Railway
+Open `http://localhost:5173`
 
-### 1. Create a Railway project
+---
 
-Go to [railway.app](https://railway.app) and create a new project.
+## Deployment (Free)
 
-### 2. Deploy the Backend
+### Backend → Render
 
-- Click **+ New** → **GitHub Repo** → select your repo
-- Set the **Root Directory** to `backend`
-- Add environment variables:
-  ```
-  DATABASE_URL=file:./dev.db
-  JWT_SECRET=<a long random string>
-  FRONTEND_URL=<your frontend Railway URL>
-  PORT=5000
-  ```
-- Railway will run `npx prisma db push && node src/index.js` on deploy
+1. Go to [render.com](https://render.com) → Sign up free
+2. New → **Web Service** → Connect GitHub → select `Task-Manager`
+3. Settings:
+   - **Root Directory**: `backend`
+   - **Build Command**: `npm install && npx prisma generate && npx prisma db push`
+   - **Start Command**: `node src/index.js`
+4. Environment Variables:
+   ```
+   DATABASE_URL   = file:./dev.db
+   JWT_SECRET     = taskflow-secret-2024
+   PORT           = 5000
+   FRONTEND_URL   = https://YOUR-VERCEL-URL.vercel.app
+   ```
+5. Click **Create Web Service** — free tier, no credit card
 
-### 3. Deploy the Frontend
+### Frontend → Vercel
 
-- Click **+ New** → **GitHub Repo** → select your repo again
-- Set the **Root Directory** to `frontend`
-- Add environment variable:
-  ```
-  VITE_API_URL=https://<your-backend-railway-url>/api
-  ```
-- Railway will build with `npm run build` and serve the `dist` folder
+1. Go to [vercel.com](https://vercel.com) → Sign up with GitHub (free)
+2. New Project → Import `Task-Manager`
+3. Settings:
+   - **Root Directory**: `frontend`
+   - **Framework Preset**: Vite
+4. Environment Variables:
+   ```
+   VITE_API_URL = https://YOUR-RENDER-URL.onrender.com/api
+   ```
+5. Click **Deploy**
 
-### 4. Connect them
+### Connect them
 
-Update `FRONTEND_URL` on the backend to match the frontend Railway URL (for CORS), and `VITE_API_URL` on the frontend to point to the backend URL.
+- Copy your Render backend URL → paste into Vercel `VITE_API_URL`
+- Copy your Vercel frontend URL → paste into Render `FRONTEND_URL`
+- Redeploy both if needed
+
+---
 
 ## API Endpoints
 
