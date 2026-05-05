@@ -10,8 +10,10 @@ dist/
 # Database
 prisma/dev.db
 prisma/dev.db-journal
+*.db
+*.db-journal
 
-# Prisma generated client
+# Prisma generated
 .prisma/
 
 # Logs
