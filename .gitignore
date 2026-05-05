@@ -1,4 +1,23 @@
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
+
+# Build output
 dist/
+
+# Database
+prisma/dev.db
+prisma/dev.db-journal
+
+# Prisma generated client
 .prisma/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
