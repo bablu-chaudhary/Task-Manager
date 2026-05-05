@@ -6,7 +6,7 @@ A full-stack collaborative task management app with role-based access (Admin/Mem
 
 - **Frontend**: React + Vite + TailwindCSS
 - **Backend**: Node.js + Express + Prisma ORM
-- **Database**: PostgreSQL
+- **Database**: SQLite (file-based, zero setup)
 - **Auth**: JWT
 - **Deployment**: Railway
 
@@ -30,7 +30,6 @@ A full-stack collaborative task management app with role-based access (Admin/Mem
 cd backend
 npm install
 cp .env.example .env
-# Fill in DATABASE_URL and JWT_SECRET in .env
 npx prisma db push
 npm run dev
 ```
@@ -50,25 +49,20 @@ npm run dev
 
 Go to [railway.app](https://railway.app) and create a new project.
 
-### 2. Add PostgreSQL
-
-In your Railway project, click **+ New** → **Database** → **PostgreSQL**.  
-Copy the `DATABASE_URL` from the database's **Variables** tab.
-
-### 3. Deploy the Backend
+### 2. Deploy the Backend
 
 - Click **+ New** → **GitHub Repo** → select your repo
 - Set the **Root Directory** to `backend`
 - Add environment variables:
   ```
-  DATABASE_URL=<from PostgreSQL service>
+  DATABASE_URL=file:./dev.db
   JWT_SECRET=<a long random string>
   FRONTEND_URL=<your frontend Railway URL>
   PORT=5000
   ```
-- Railway will run `npx prisma migrate deploy && node src/index.js` on deploy
+- Railway will run `npx prisma db push && node src/index.js` on deploy
 
-### 4. Deploy the Frontend
+### 3. Deploy the Frontend
 
 - Click **+ New** → **GitHub Repo** → select your repo again
 - Set the **Root Directory** to `frontend`
@@ -78,9 +72,9 @@ Copy the `DATABASE_URL` from the database's **Variables** tab.
   ```
 - Railway will build with `npm run build` and serve the `dist` folder
 
-### 5. Connect them
+### 4. Connect them
 
-Make sure `FRONTEND_URL` on the backend matches the frontend Railway URL (for CORS), and `VITE_API_URL` on the frontend points to the backend URL.
+Update `FRONTEND_URL` on the backend to match the frontend Railway URL (for CORS), and `VITE_API_URL` on the frontend to point to the backend URL.
 
 ## API Endpoints
 
@@ -91,10 +85,12 @@ Make sure `FRONTEND_URL` on the backend matches the frontend Railway URL (for CO
 | GET | /api/auth/me | ✓ | Current user |
 | GET | /api/projects | ✓ | List my projects |
 | POST | /api/projects | ✓ | Create project |
+| PATCH | /api/projects/:id | Admin | Update project |
 | GET | /api/projects/:id | ✓ | Project detail + tasks |
 | POST | /api/projects/:id/members | Admin | Add member |
 | DELETE | /api/projects/:id/members/:userId | Admin | Remove member |
 | DELETE | /api/projects/:id | Admin | Delete project |
+| GET | /api/tasks/my | ✓ | My assigned tasks |
 | POST | /api/tasks | Admin | Create task |
 | PATCH | /api/tasks/:id | ✓ | Update task |
 | DELETE | /api/tasks/:id | Admin | Delete task |
